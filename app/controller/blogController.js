@@ -76,11 +76,48 @@ class BlogController {
             res.status(500).json({ message: "Error retrieving blog data" });
         }
     }
+
+    // Add comment for blog
+    async addComment(req, res) {
+        const id = req.params.id;
+        try {
+            const commentData = req.body
+            console.log("Comment data", commentData)
+            const blog = await BlogModel.findById(id);
+            blog.comments.push(commentData);
+            blog.save()
+            res.status(201).json({
+                success: true,
+                message: "Comment added successfully",
+                blog
+            });
+        } catch (error) {
+            const statusCode = error.name === 'ValidationError' ? 400 : 500;
+            const message = error.name === 'ValidationError'
+                ? { message: "Validation error", errors: Object.values(error.errors).map(err => err.message) }
+                : { message: "Error updating student data" };
+
+            console.error(error);
+            res.status(statusCode).json(message);
+        }
+    }
+
+    // Show comment 
+    async showComment(req, res) {
+        const id = req.params.id;
+        try {
+            const blog = await BlogModel.findById(id)
+            res.status(200).json({ sucess: true, message: "Comment fetching successfully", blog })
+        } catch (error) {
+            res.status(500).json({ success: false, message: "Error fetching comment", error });
+        }
+    }
+
 }
 module.exports = new BlogController()
 
 
 
-    
+
 
 
